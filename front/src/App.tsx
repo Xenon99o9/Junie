@@ -6,7 +6,7 @@ function App() {
     <>
     <div>
         <p>test</p>
-        <div className="badge badge-primary">Primary</div>
+        
     </div>
     </>
   )
