@@ -1,5 +1,6 @@
 import CardItem from "./CardItem";
 
+
 type Card = {
     id: number
     text: string
@@ -11,9 +12,11 @@ type Props = {
     tab: Card[]
 }
 
+
+
 const Map = ({ tab }: Props) => {
 
-  return (
+    return (
 
     <div className="relative w-screen h-screen overflow-hidden bg-base-100">
       
