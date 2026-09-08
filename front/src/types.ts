@@ -5,4 +5,5 @@ export type Card = {
   y: number
   width: number
   height: number
+  index: number
 }

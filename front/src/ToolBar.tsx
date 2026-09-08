@@ -14,14 +14,16 @@ const ToolBar = ({cards, setCards} : Props) => {
     y:0,
     width: 100,
     height: 100,
+    index: 10,
   }
   const test1 : Card ={
     id:1,
     text:"100 100",
     x:100,
     y:100,
-    width: 50,
-    height: 50,
+    width: 60,
+    height: 60,
+    index: 10,
   }
   const test2 : Card ={
     id:2,
@@ -30,6 +32,7 @@ const ToolBar = ({cards, setCards} : Props) => {
     y:-100,
     width: 200,
     height: 200,
+    index: 10,
   }
 
 

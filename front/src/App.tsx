@@ -13,6 +13,21 @@ function App() {
   
   const [selected, setSelected] = useState<number | null>(null)
 
+  const updateCardPosition = (id: number, x: number, y: number) => {
+    setCards((prevCards) =>
+      prevCards.map((card) =>
+        card.id === id ? { ...card, x, y } : card
+      )
+    )
+  }
+
+  const updateCardText = (id: number, text: string) => {
+    setCards((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, text } : c))
+    )
+  }
+
+
   useEffect(() => {
     localStorage.setItem("cards", JSON.stringify(cards))
   }, [cards])
@@ -24,7 +39,7 @@ function App() {
       
 
       {/* arrière-plan */}
-      <Map tab={cards} selected={selected} setSelected={setSelected}/>
+      <Map tab={cards} selected={selected} setSelected={setSelected} updateCardPosition={updateCardPosition} updateCardText={updateCardText}/>
       <ToolBar cards={cards} setCards={setCards}/>
 
   </div>
