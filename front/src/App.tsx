@@ -1,15 +1,11 @@
 import { useState } from "react";
 import Map from "./Map";
 import ToolBar from "./ToolBar";
+import type { Card } from "./types"
 
 function App() {
 
-  type Card = {
-    id: number
-    text: string
-    x:number
-    y:number
-  }
+
 
   const savedCards = localStorage.getItem("cards")
   const initialCards = savedCards ? JSON.parse(savedCards) : []

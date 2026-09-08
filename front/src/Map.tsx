@@ -1,12 +1,5 @@
 import CardItem from "./CardItem";
-
-
-type Card = {
-    id: number
-    text: string
-    x:number
-    y:number
-}
+import type { Card } from "./types"
 
 type Props = {
     tab: Card[]

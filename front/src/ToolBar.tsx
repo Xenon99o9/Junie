@@ -1,9 +1,4 @@
-type Card = {
-    id: number
-    text: string
-    x:number
-    y:number
-}
+import type { Card } from "./types"
 
 type Props = {
     cards: Card[]
@@ -17,18 +12,24 @@ const ToolBar = ({cards, setCards} : Props) => {
     text:"mid",
     x:0,
     y:0,
+    width: 100,
+    height: 100,
   }
   const test1 : Card ={
     id:1,
     text:"100 100",
     x:100,
     y:100,
+    width: 50,
+    height: 50,
   }
   const test2 : Card ={
     id:2,
     text:"-100 -100",
     x:-100,
     y:-100,
+    width: 200,
+    height: 200,
   }
 
 
