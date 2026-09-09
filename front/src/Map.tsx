@@ -7,13 +7,14 @@ type Props = {
     setSelected: (id: number | null) => void
     updateCardPosition: (id:number,x:number,y:number)=>void
     updateCardText: (id:number, text:string)=>void
+    updateCardPositionAndSize: (id:number, x:number, y:number, width:number,height:number) => void
 }
 
 
 
 
 
-const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText }: Props) => {
+const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, updateCardPositionAndSize }: Props) => {
 
   
   const handlePointerDown = (cardId: number, e: React.PointerEvent) => {
@@ -70,6 +71,7 @@ const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText }:
             setSelected={setSelected}
             onPointerDown={handlePointerDown}
             updateCardText={updateCardText}
+            updateCardPositionAndSize={updateCardPositionAndSize}
             />
         ))}
 
