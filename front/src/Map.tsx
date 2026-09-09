@@ -8,13 +8,14 @@ type Props = {
     updateCardPosition: (id:number,x:number,y:number)=>void
     updateCardText: (id:number, text:string)=>void
     updateCardPositionAndSize: (id:number, x:number, y:number, width:number,height:number) => void
+    removeCard: (id:number) => void
 }
 
 
 
 
 
-const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, updateCardPositionAndSize }: Props) => {
+const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, updateCardPositionAndSize, removeCard }: Props) => {
 
   
   const handlePointerDown = (cardId: number, e: React.PointerEvent) => {
@@ -72,6 +73,7 @@ const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, u
             onPointerDown={handlePointerDown}
             updateCardText={updateCardText}
             updateCardPositionAndSize={updateCardPositionAndSize}
+            removeCard={removeCard}
             />
         ))}
 

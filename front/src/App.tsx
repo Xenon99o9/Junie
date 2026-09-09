@@ -34,6 +34,24 @@ function App() {
       )
     )
   }
+  const addCard = () => {
+    const defaultCard : Card = {
+      id:Date.now(),
+      text:"Text",
+      x:0,
+      y:0,
+      width: 100,
+      height: 100,
+      index: 10,
+    }
+    const newCards = [defaultCard, ...cards]
+    setCards(newCards)
+  }
+
+  const removeCard = (id:number) => {
+    const newCards = cards.filter((card) => card.id !== id)
+    setCards(newCards)
+  }
 
 
   useEffect(() => {
@@ -52,8 +70,9 @@ function App() {
         updateCardPosition={updateCardPosition}
         updateCardText={updateCardText}
         updateCardPositionAndSize={updateCardPositionAndSize}
+        removeCard={removeCard}
       />
-      <ToolBar cards={cards} setCards={setCards}/>
+      <ToolBar cards={cards} setCards={setCards} addCard={addCard}/>
 
   </div>
   )
