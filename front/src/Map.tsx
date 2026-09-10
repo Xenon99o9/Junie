@@ -110,36 +110,7 @@ const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, u
     window.addEventListener("pointerup", surRelachementSouris)
   }
 
-  // Déplacement d'une carte individuelle
-  const handleCardPointerDown = (cardId: number, e: React.PointerEvent) => {
-    e.stopPropagation()
-
-    if (selected !== cardId) {
-      setSelected(cardId)
-    }
-
-    const currentCard = tab.find((card) => card.id === cardId)
-    if (!currentCard) return
-
-    const startSourisX = e.clientX
-    const startSourisY = e.clientY
-    const startObjetX = currentCard.x
-    const startObjetY = currentCard.y
-
-    const handlePointerMove = (moveEvent: PointerEvent) => {
-      const deltaX = moveEvent.clientX - startSourisX
-      const deltaY = moveEvent.clientY - startSourisY
-      updateCardPosition(cardId, startObjetX + deltaX, startObjetY + deltaY)
-    }
-
-    const handlePointerUp = () => {
-      window.removeEventListener("pointermove", handlePointerMove)
-      window.removeEventListener("pointerup", handlePointerUp)
-    }
-
-    window.addEventListener("pointermove", handlePointerMove)
-    window.addEventListener("pointerup", handlePointerUp)
-  }
+ 
     return (
 
     <div
