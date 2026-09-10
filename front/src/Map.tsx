@@ -1,6 +1,6 @@
 import CardItem from "./CardItem";
 import type { Card } from "./types"
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 type Props = {
     tab: Card[]
@@ -22,6 +22,8 @@ const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, u
   const handlePointerDown = (cardId: number, e: React.PointerEvent) => {
       e.stopPropagation() // Empêche le clic de traverser vers le fond
 
+      if (e.button !== 0) return // Bloque le clic droit sur la carte
+      e.stopPropagation()
 
       if (selected !== cardId){
         setSelected(cardId)
@@ -42,8 +44,8 @@ const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, u
       // B. Fonction appelée à chaque micro-déplacement
       const handlePointerMove = (moveEvent: PointerEvent) => {
         // Calcul du décalage (delta)
-        const deltaX = moveEvent.clientX - startSourisX
-        const deltaY = moveEvent.clientY - startSourisY
+        const deltaX = (moveEvent.clientX - startSourisX) / zoom
+        const deltaY = (moveEvent.clientY - startSourisY) / zoom
 
         // Nouvelle position = point de départ de l'objet + décalage
         updateCardPosition(cardId, startObjetX + deltaX, startObjetY + deltaY)
@@ -69,6 +71,52 @@ const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, u
     y: 0,
   })
 
+  // État du zoom (1 = 100 %)
+  const [zoom, setZoom] = useState(1)
+
+  // Référence vers le conteneur plein écran pour écouter la molette
+  const mapRef = useRef<HTMLDivElement>(null)
+
+  // Références miroir pour accéder aux valeurs à jour sans recréer l'écouteur
+  const cameraRef = useRef(camera)
+  cameraRef.current = camera
+  const zoomRef = useRef(zoom)
+  zoomRef.current = zoom
+
+  // Gestion du zoomcd 
+  useEffect(() => {
+    const surMolette = (e: WheelEvent) => {
+      console.log("OK")
+      // Filtrer : on n'agit QUE si c'est un pincement pad ou un Ctrl+molette
+      if (!e.ctrlKey) return
+
+      // Bloque impérativement le zoom natif de la page Chromium / Firefox
+      e.preventDefault()
+
+      const facteur = Math.exp(-e.deltaY * 0.0015)
+      const zoomActuel = zoomRef.current
+      const nouveauZoom = Math.min(Math.max(zoomActuel * facteur, 0.1), 5)
+      const ratio = nouveauZoom / zoomActuel
+
+      const sourisX = e.clientX - window.innerWidth / 2
+      const sourisY = e.clientY - window.innerHeight / 2
+
+      const cameraActuelle = cameraRef.current
+      const nouvelleCameraX = sourisX - (sourisX - cameraActuelle.x) * ratio
+      const nouvelleCameraY = sourisY - (sourisY - cameraActuelle.y) * ratio
+
+      zoomRef.current = nouveauZoom
+      cameraRef.current = { x: nouvelleCameraX, y: nouvelleCameraY }
+
+      setZoom(nouveauZoom)
+      setCamera({ x: nouvelleCameraX, y: nouvelleCameraY })
+    }
+
+    // Branché sur window pour intercepter l'événement avant le navigateur
+    window.addEventListener("wheel", surMolette, { passive: false })
+    return () => window.removeEventListener("wheel", surMolette)
+  }, [])
+  
   // 2. L'écouteur au clic sur le fond
   const quandPointeurEnfonceSurFond = (e: React.PointerEvent) => {
     // SI le bouton cliqué n'est PAS le bouton 0 : QUITTER
@@ -114,18 +162,22 @@ const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, u
     return (
 
     <div
+    ref={mapRef}
     onPointerDown={quandPointeurEnfonceSurFond}
-    onClick={() => setSelected(null)} className="relative w-screen h-screen overflow-hidden bg-base-100">
+    onClick={() => setSelected(null)} 
+    className="relative w-screen h-screen overflow-hidden bg-base-100 touch-none">
       
       <div
       style={{
-          transform: `translate(${camera.x}px, ${camera.y}px)`,
+          transform: `translate(${camera.x}px, ${camera.y}px) scale(${zoom})`,
+          transformOrigin: "0 0",
         }}
       className="absolute top-1/2 left-1/2">
         {tab.map((card) => (
             <CardItem
             key={card.id}
             card={card}
+            zoom={zoom}
             selected={selected}
             setSelected={setSelected}
             onPointerDown={handlePointerDown}

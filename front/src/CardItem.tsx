@@ -5,6 +5,7 @@ import type { Card } from "./types"
 type Props = {
   card: Card
   selected: number | null
+  zoom: number
   setSelected: (id: number | null) => void
   onPointerDown: (id: number, e: React.PointerEvent) => void
   updateCardText: (id: number, text: string) => void
@@ -15,6 +16,7 @@ type Props = {
 const CardItem = ({
   card,
   selected,
+  zoom,
   setSelected,
   onPointerDown,
   updateCardText,
@@ -53,8 +55,8 @@ const handleResize = (dir: Direction, e: React.PointerEvent) => {
   const anchorY = isNorth ? startY + startH / 2 : startY - startH / 2
 
   const onPointerMove = (moveEv: PointerEvent) => {
-    const dx = moveEv.clientX - startMouseX
-    const dy = moveEv.clientY - startMouseY
+    const dx = (moveEv.clientX - startMouseX) / zoom
+    const dy = (moveEv.clientY - startMouseY) / zoom
 
     // 1. Largeur et position X (inchangées si on tire 'n' ou 's')
     let newWidth = startW
