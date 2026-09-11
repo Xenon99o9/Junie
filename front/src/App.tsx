@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Map from "./Map";
 import ToolBar from "./ToolBar";
-import type { Card } from "./types"
+import type { Card, Wire, Mode } from "./types"
 
 function App() {
 
@@ -10,6 +10,12 @@ function App() {
   const savedCards = localStorage.getItem("cards")
   const initialCards = savedCards ? JSON.parse(savedCards) : []
   const [cards, setCards] = useState<Card[]>(initialCards)
+
+  const savedWires = localStorage.getItem("wires")
+  const initialWires = savedWires ? JSON.parse(savedWires) : []
+  const [wires, setWires] = useState<Wire[]>(initialWires)
+
+  const [mode, setMode] = useState<Mode>("select")
   
   const [selected, setSelected] = useState<number | null>(null)
 
@@ -51,12 +57,19 @@ function App() {
   const removeCard = (id:number) => {
     const newCards = cards.filter((card) => card.id !== id)
     setCards(newCards)
+    setWires((prevWires) =>
+      prevWires.filter((wire) => wire.fromId !== id && wire.toId !== id)
+    )
   }
 
 
   useEffect(() => {
     localStorage.setItem("cards", JSON.stringify(cards))
   }, [cards])
+
+  useEffect(() => {
+    localStorage.setItem("wires", JSON.stringify(wires))
+  }, [wires])
 
   return (
     <div className="relative w-screen h-screen overflow-hidden">
@@ -71,8 +84,15 @@ function App() {
         updateCardText={updateCardText}
         updateCardPositionAndSize={updateCardPositionAndSize}
         removeCard={removeCard}
+        mode={mode}
       />
-      <ToolBar cards={cards} setCards={setCards} addCard={addCard}/>
+      <ToolBar
+        cards={cards}
+        setCards={setCards}
+        addCard={addCard}
+        mode={mode}
+        setMode={setMode}
+      />
 
   </div>
   )

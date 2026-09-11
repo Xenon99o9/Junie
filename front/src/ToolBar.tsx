@@ -1,12 +1,14 @@
-import type { Card } from "./types"
+import type { Card, Mode } from "./types"
 
 type Props = {
     cards: Card[]
     setCards: (cards: Card[])=> void
     addCard: ()=>void
+    mode: Mode
+    setMode: (mode: Mode) => void
 }
 
-const ToolBar = ({cards, setCards, addCard} : Props) => {
+const ToolBar = ({cards, setCards, addCard, mode, setMode} : Props) => {
 
   
 
@@ -17,6 +19,15 @@ const ToolBar = ({cards, setCards, addCard} : Props) => {
     <div className="flex-col absolute top-0 left-0 w-60 h-screen z-20 overflow-hidden bg-primary p-4">
         
         <button className="btn btn-secondary rounded-lg" onClick={addCard}>Add Card</button>
+
+        <button
+          className={`btn rounded-lg ${
+            mode === "connect" ? "btn-accent" : "btn-outline btn-secondary"
+          }`}
+          onClick={() => setMode(mode === "connect" ? "select" : "connect")}
+        >
+          {mode === "connect" ? "Mode : Lier (actif)" : "Relier des cartes"}
+        </button>
 
         <div className="dropdown mb-72 ">
           <div tabIndex={0} role="button" className="btn m-1 rounded-lg">

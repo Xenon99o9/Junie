@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import type React from "react"
-import type { Card } from "./types"
+import type { Card , Mode} from "./types"
 
 type Props = {
   card: Card
@@ -11,6 +11,7 @@ type Props = {
   updateCardText: (id: number, text: string) => void
   updateCardPositionAndSize: (id:number, x:number, y:number, width:number,height:number) => void
   removeCard: (id:number)=> void
+  mode: Mode
 }
 
 const CardItem = ({
@@ -21,7 +22,8 @@ const CardItem = ({
   onPointerDown,
   updateCardText,
   updateCardPositionAndSize,
-  removeCard
+  removeCard,
+  mode,
 }: Props) => {
   const [isEditing, setIsEditing] = useState(false)
   const isSelected = selected === card.id
@@ -197,6 +199,34 @@ const handleResize = (dir: Direction, e: React.PointerEvent) => {
         </>
       )}
       </div>
+      {/* Pastilles de connexion (visibles uniquement en mode "connect") */}
+      {mode === "connect" && (
+        <>
+          {/* Haut (Nord) */}
+          <div
+            data-side="n"
+            className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-accent border-2 border-base-100 rounded-full cursor-crosshair z-30 hover:scale-125 transition-transform"
+          />
+
+          {/* Bas (Sud) */}
+          <div
+            data-side="s"
+            className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-accent border-2 border-base-100 rounded-full cursor-crosshair z-30 hover:scale-125 transition-transform"
+          />
+
+          {/* Gauche (Ouest) */}
+          <div
+            data-side="w"
+            className="absolute top-1/2 -translate-y-1/2 -left-2 w-4 h-4 bg-accent border-2 border-base-100 rounded-full cursor-crosshair z-30 hover:scale-125 transition-transform"
+          />
+
+          {/* Droite (Est) */}
+          <div
+            data-side="e"
+            className="absolute top-1/2 -translate-y-1/2 -right-2 w-4 h-4 bg-accent border-2 border-base-100 rounded-full cursor-crosshair z-30 hover:scale-125 transition-transform"
+          />
+        </>
+      )}
     </div>
   )
 }

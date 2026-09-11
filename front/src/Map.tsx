@@ -1,5 +1,5 @@
 import CardItem from "./CardItem";
-import type { Card } from "./types"
+import type { Card, Side, Mode } from "./types"
 import { useState, useRef, useEffect } from "react";
 
 type Props = {
@@ -10,13 +10,27 @@ type Props = {
     updateCardText: (id:number, text:string)=>void
     updateCardPositionAndSize: (id:number, x:number, y:number, width:number,height:number) => void
     removeCard: (id:number) => void
+    mode: Mode
+}
+
+export const getAnchorPosition = (card: Card, side: Side) => {
+  switch (side) {
+    case "n": // Haut : même X, Y décalé vers le haut
+      return { x: card.x, y: card.y - card.height / 2 }
+    case "s": // Bas : même X, Y décalé vers le bas
+      return { x: card.x, y: card.y + card.height / 2 }
+    case "w": // Gauche : X décalé à gauche, même Y
+      return { x: card.x - card.width / 2, y: card.y }
+    case "e": // Droite : X décalé à droite, même Y
+      return { x: card.x + card.width / 2, y: card.y }
+  }
 }
 
 
 
 
 
-const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, updateCardPositionAndSize, removeCard }: Props) => {
+const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, updateCardPositionAndSize, removeCard, mode }: Props) => {
 
   
   const handlePointerDown = (cardId: number, e: React.PointerEvent) => {
@@ -184,6 +198,7 @@ const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, u
             updateCardText={updateCardText}
             updateCardPositionAndSize={updateCardPositionAndSize}
             removeCard={removeCard}
+            mode={mode}
             />
         ))}
 
