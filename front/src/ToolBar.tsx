@@ -14,7 +14,7 @@ const ToolBar = ({cards, setCards, addCard} : Props) => {
     
   return (
 
-    <div className="list absolute top-0 left-0 w-60 h-screen z-20 overflow-hidden bg-primary p-4">
+    <div className="flex-col absolute top-0 left-0 w-60 h-screen z-20 overflow-hidden bg-primary p-4">
         
         <button className="btn btn-secondary rounded-lg" onClick={addCard}>Add Card</button>
 
@@ -72,6 +72,9 @@ const ToolBar = ({cards, setCards, addCard} : Props) => {
                 value="aqua" />
             </li>
           </ul>
+        </div>
+        <div className=" ">
+          To zoom or unZoom hold "crtl"
         </div>
     </div>
   )
