@@ -3,7 +3,7 @@ import type { Card, Side, Mode } from "./types"
 import { useState, useRef, useEffect } from "react";
 
 type Props = {
-    tab: Card[]
+    cards: Card[]
     selected: number | null
     setSelected: (id: number | null) => void
     updateCardPosition: (id:number,x:number,y:number)=>void
@@ -30,7 +30,7 @@ export const getAnchorPosition = (card: Card, side: Side) => {
 
 
 
-const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, updateCardPositionAndSize, removeCard, mode }: Props) => {
+const Map = ({ cards, selected, setSelected, updateCardPosition, updateCardText, updateCardPositionAndSize, removeCard, mode }: Props) => {
 
   
   const handlePointerDown = (cardId: number, e: React.PointerEvent) => {
@@ -39,12 +39,14 @@ const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, u
       if (e.button !== 0) return // Bloque le clic droit sur la carte
       e.stopPropagation()
 
+      if (mode === "connect") return
+
       if (selected !== cardId){
         setSelected(cardId)
       }
       
 
-      const currentCard = tab.find((card) => card.id === cardId )
+      const currentCard = cards.find((card) => card.id === cardId )
       if (!currentCard){
         return
       }
@@ -187,7 +189,7 @@ const Map = ({ tab, selected, setSelected, updateCardPosition, updateCardText, u
           transformOrigin: "0 0",
         }}
       className="absolute top-1/2 left-1/2">
-        {tab.map((card) => (
+        {cards.map((card) => (
             <CardItem
             key={card.id}
             card={card}

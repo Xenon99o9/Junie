@@ -78,7 +78,9 @@ function App() {
       
 
       {/* arrière-plan */}
-      <Map tab={cards} selected={selected}
+      <Map
+        cards={cards}
+        selected={selected}
         setSelected={setSelected}
         updateCardPosition={updateCardPosition}
         updateCardText={updateCardText}
@@ -92,6 +94,7 @@ function App() {
         addCard={addCard}
         mode={mode}
         setMode={setMode}
+        setSelected={setSelected}
       />
 
   </div>

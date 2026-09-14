@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import type React from "react"
-import type { Card , Mode} from "./types"
+import type { Card , Mode } from "./types"
 
 type Props = {
   card: Card
@@ -88,13 +88,19 @@ const handleResize = (dir: Direction, e: React.PointerEvent) => {
   window.addEventListener("pointerup", onPointerUp)
 }
 
+function selectCard(id: number){
+  if (mode === "select"){
+    setSelected(id)
+  }
+}
+
 
 
   return (
     <div
       onClick={(e) => {
         e.stopPropagation()
-        setSelected(card.id)
+        selectCard(card.id)
       }}
       onDoubleClick={(e) => {
         e.stopPropagation()

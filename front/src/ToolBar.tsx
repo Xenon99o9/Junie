@@ -6,11 +6,19 @@ type Props = {
     addCard: ()=>void
     mode: Mode
     setMode: (mode: Mode) => void
+    setSelected: (id: number | null) => void
 }
 
-const ToolBar = ({cards, setCards, addCard, mode, setMode} : Props) => {
+const ToolBar = ({cards, setCards, addCard, mode, setMode, setSelected} : Props) => {
 
-  
+  function changeMode(){
+    if (mode === "connect"){
+      setMode("select")
+    } else {
+      setMode("connect")
+      setSelected(null)
+    }
+  }
 
   
     
@@ -24,7 +32,7 @@ const ToolBar = ({cards, setCards, addCard, mode, setMode} : Props) => {
           className={`btn rounded-lg ${
             mode === "connect" ? "btn-accent" : "btn-outline btn-secondary"
           }`}
-          onClick={() => setMode(mode === "connect" ? "select" : "connect")}
+          onClick={() => changeMode()}
         >
           {mode === "connect" ? "Mode : Lier (actif)" : "Relier des cartes"}
         </button>
