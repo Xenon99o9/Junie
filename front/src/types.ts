@@ -7,3 +7,10 @@ export type Card = {
   height: number
   index: number
 }
+
+export type Projet = {
+  id: string;
+  titre: string;
+  dateModification: string;
+  couleur: string;
+}

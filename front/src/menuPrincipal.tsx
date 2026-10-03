@@ -1,25 +1,13 @@
 import { useState } from 'react';
-import { 
-  Plus, 
-  Home, 
-  Folder, 
-  Search, 
-  LayoutTemplate, 
-  MoreVertical, 
-  Edit2, 
-  Play 
-} from 'lucide-react';
+import { Plus, Home, Folder, Search, LayoutTemplate, MoreVertical, Edit2, Play } from 'lucide-react';
+import type { Projet } from './types'; // Import du type
 
-// Types pour nos projets
-interface Projet {
-  id: string;
-  titre: string;
-  dateModification: string;
-  couleur: string;
+interface MenuProps {
+  onNouveauProjet: () => void;
 }
 
-export default function MenuPrincipal() {
-  // Simuler des projets existants
+export default function MenuPrincipal({ onNouveauProjet }: MenuProps) {
+  // Faux projets pour le rendu initial 
   const [projets] = useState<Projet[]>([
     { id: '1', titre: 'Affiche Événement', dateModification: 'Modifié il y a 2h', couleur: 'bg-blue-200' },
     { id: '2', titre: 'Maquette Application', dateModification: 'Modifié hier', couleur: 'bg-purple-200' },
@@ -30,7 +18,7 @@ export default function MenuPrincipal() {
   return (
     <div className="flex h-screen bg-gray-50 text-gray-800 font-sans">
       
-      {/* Barre latérale (Sidebar) */}
+      {/* La sidebar */}
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col hidden md:flex">
         <div className="p-6">
           <h1 className="text-2xl font-bold text-indigo-600 tracking-tight">MonCanevas</h1>
@@ -55,7 +43,7 @@ export default function MenuPrincipal() {
       {/* Contenu Principal */}
       <main className="flex-1 flex flex-col overflow-hidden">
         
-        {/* En-tête (Header) */}
+        {/* header */}
         <header className="h-16 flex items-center justify-between px-8 bg-white border-b border-gray-200">
           <div className="flex items-center bg-gray-100 rounded-full px-4 py-2 w-96">
             <Search className="w-5 h-5 text-gray-400" />
@@ -70,17 +58,20 @@ export default function MenuPrincipal() {
           </div>
         </header>
 
-        {/* Zone défilante */}
+        {/* caroussel */}
         <div className="flex-1 overflow-y-auto p-8">
           
-          {/* Bannière "Créer" */}
+          {/* Bannière */}
           <section className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-2xl p-8 mb-10 text-white shadow-lg">
             <h2 className="text-3xl font-bold mb-2">Que voulez-vous créer aujourd'hui ?</h2>
-            <p className="mb-6 opacity-90">Commencez de zéro ou choisissez un format pour démarrer.</p>
+            <p className="mb-6 opacity-90">Commencez un projet ou choisissez un modèle pour démarrer.</p>
             
-            <button className="flex items-center bg-white text-indigo-600 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors shadow-sm">
+            <button 
+              onClick={onNouveauProjet}
+              className="flex items-center bg-white text-indigo-600 px-6 py-3 rounded-xl font-semibold hover:bg-gray-50 transition-colors shadow-sm"
+            >
               <Plus className="w-5 h-5 mr-2" />
-              Nouveau projet personnalisé
+              Nouveau projet 
             </button>
           </section>
 
@@ -98,7 +89,7 @@ export default function MenuPrincipal() {
                 >
                   {/* Miniature du projet */}
                   <div className={`h-40 ${projet.couleur} relative flex items-center justify-center`}>
-                    {/* Bouton d'action rapide au survol (style Canva) */}
+                    {/* Bouton d'action rapide */}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                       <button className="p-2 bg-white rounded-full hover:bg-gray-100 shadow-lg text-gray-800" title="Ouvrir">
                         <Play className="w-5 h-5 ml-1" />
@@ -120,7 +111,7 @@ export default function MenuPrincipal() {
                       </p>
                     </div>
                     
-                    {/* Menu contextuel (Options) */}
+                    {/* Options */}
                     <button className="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100 transition-colors">
                       <MoreVertical className="w-4 h-4" />
                     </button>
