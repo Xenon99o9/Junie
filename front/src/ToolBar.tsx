@@ -99,4 +99,4 @@ const ToolBar = ({cards, setCards, addCard, mode, setMode, setSelected} : Props)
   )
 }
 
-export default ToolBar
+export default ToolBar 

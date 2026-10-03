@@ -8,6 +8,12 @@ export type Card = {
   index: number
 }
 
+export type Projet = {
+  id: string;
+  titre: string;
+  dateModification: string;
+  couleur: string;
+}
 export type Side = "n" | "s" | "e" | "w"
 
 export type Wire = {
