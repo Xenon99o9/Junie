@@ -3,6 +3,9 @@ from rest_framework import permissions, viewsets
 
 from quickstart.serializers import GroupSerializer, UserSerializer
 
+from .models import Project, Card, Wire
+from .serializers import ProjectSerializer, CardSerializer, WireSerializer
+
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -22,3 +25,17 @@ class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all().order_by("name")
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
+    
+
+
+class ProjectViewSet(viewsets.ModelViewSet):
+    queryset = Project.objects.all() # Quelles données on manipule ?
+    serializer_class = ProjectSerializer # Comment on les traduit ?
+    
+class CardViewSet(viewsets.ModelViewSet):
+    queryset = Card.objects.all() 
+    serializer_class = CardSerializer 
+    
+class WireViewSet(viewsets.ModelViewSet):
+    queryset = Wire.objects.all() 
+    serializer_class = WireSerializer 
