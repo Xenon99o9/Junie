@@ -1,15 +1,14 @@
-import type { Card, Mode } from "./types"
+import type { Mode } from "./types"
 
 type Props = {
-    cards: Card[]
-    setCards: (cards: Card[])=> void
     addCard: ()=>void
     mode: Mode
     setMode: (mode: Mode) => void
     setSelected: (id: number | null) => void
+    onRetourMenu: () => void
 }
 
-const ToolBar = ({cards, setCards, addCard, mode, setMode, setSelected} : Props) => {
+const ToolBar = ({addCard, mode, setMode, setSelected, onRetourMenu} : Props) => {
 
   function changeMode(){
     if (mode === "connect"){
@@ -26,6 +25,7 @@ const ToolBar = ({cards, setCards, addCard, mode, setMode, setSelected} : Props)
 
     <div className="flex-col absolute top-0 left-0 w-60 h-screen z-20 overflow-hidden bg-primary p-4">
         
+        <button className="btn btn-outline btn-secondary rounded-lg" onClick={onRetourMenu}>Retour au menu</button>
         <button className="btn btn-secondary rounded-lg" onClick={addCard}>Add Card</button>
 
         <button

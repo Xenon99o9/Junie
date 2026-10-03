@@ -6,7 +6,7 @@ import type { Card, Wire, Mode, Side } from "./types"
 
 function App() {
   // 1. Nouvel état pour savoir si on affiche le menu ou le canevas 
-  const [mode, setMode] = useState<'menu' | 'canevas'>('menu');
+  const [modeMenu, setModeMenu] = useState<'menu' | 'canevas'>('menu');
 
   // LOGIQUE 
   const savedCards = localStorage.getItem("cards")
@@ -93,22 +93,7 @@ function App() {
   useEffect(() => {
     localStorage.setItem("cards", JSON.stringify(cards))
   }, [cards])
-  
 
-
-  // 2. RENDU 
-
-  // Si on est en mode 'menu', on affiche toute votre nouvelle interface
-  if (mode === 'menu') {
-    return (
-      <DashboardLayout
-        // On passe la fonction pour basculer sur le canevas
-        onOuvrirCanevas={() => setMode('canevas')}
-      />
-    );
-  }
-
-  // Sinon, on affiche votre Canevas existant
   useEffect(() => {
     localStorage.setItem("wires", JSON.stringify(wires))
   }, [wires])
@@ -131,14 +116,21 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown, true)
   }, [selectedWire])
 
+  // 2. RENDU
+  if (modeMenu === 'menu') {
+    return (
+      <DashboardLayout
+        onOuvrirCanevas={() => setModeMenu('canevas')}
+      />
+    )
+  }
+
   return (
     <div className="relative w-screen h-screen overflow-hidden">
 
 
 
-      {/* arrière-plan */}
       <Map
-        tab={cards}
         cards={cards}
         selected={selected}
         setSelected={setSelected}
@@ -153,18 +145,11 @@ function App() {
         setSelectedWire={setSelectedWire}
       />
       <ToolBar
-        cards={cards}
-        setCards={setCards}
         addCard={addCard}
         mode={mode}
         setMode={setMode}
         setSelected={setSelected}
-      />
-      {/* On ajoute la prop onRetourMenu ici */}
-      <ToolBar
-        cards={cards}
-        setCards={setCards}
-        onRetourMenu={() => setMode('menu')}
+        onRetourMenu={() => setModeMenu('menu')}
       />
     </div>
 
