@@ -1,23 +1,31 @@
 import { useState, useEffect } from "react"
 import type React from "react"
-import type { Card } from "./types"
+import type { Card , Mode, Side } from "./types"
 
 type Props = {
   card: Card
   selected: number | null
+  zoom: number
   setSelected: (id: number | null) => void
   onPointerDown: (id: number, e: React.PointerEvent) => void
   updateCardText: (id: number, text: string) => void
   updateCardPositionAndSize: (id:number, x:number, y:number, width:number,height:number) => void
+  removeCard: (id:number)=> void
+  mode: Mode
+  onStartConnect: (cardId: number, side: Side, e: React.PointerEvent) => void
 }
 
 const CardItem = ({
   card,
   selected,
+  zoom,
   setSelected,
   onPointerDown,
   updateCardText,
   updateCardPositionAndSize,
+  removeCard,
+  mode,
+  onStartConnect,
 }: Props) => {
   const [isEditing, setIsEditing] = useState(false)
   const isSelected = selected === card.id
@@ -29,49 +37,64 @@ const CardItem = ({
     }
   }, [isSelected])
 
-  type Direction = "nw" | "ne" | "sw" | "se"
+  type Direction = "n" | "s" | "e" | "w" | "nw" | "ne" | "sw" | "se"
 
 const handleResize = (dir: Direction, e: React.PointerEvent) => {
   e.stopPropagation()
 
-  // 1. Détection des signes selon la direction passée
+  const hasX = dir.includes("w") || dir.includes("e")
+  const hasY = dir.includes("n") || dir.includes("s")
   const isWest = dir.includes("w")
   const isNorth = dir.includes("n")
 
-  // 2. Point d'ancrage opposé (qui reste figé sur le canevas)
-  const anchorX = isWest ? card.x + card.width / 2 : card.x - card.width / 2
-  const anchorY = isNorth ? card.y + card.height / 2 : card.y - card.height / 2
-
-  const startMouseX = e.clientX
-  const startMouseY = e.clientY
+  const startX = card.x
+  const startY = card.y
   const startW = card.width
   const startH = card.height
+  const startMouseX = e.clientX
+  const startMouseY = e.clientY
 
-const onPointerMove = (moveEv: PointerEvent) => {
-      const dx = moveEv.clientX - startMouseX
-      const dy = moveEv.clientY - startMouseY
+  // Ancrages opposés uniquement si l'axe est actif
+  const anchorX = isWest ? startX + startW / 2 : startX - startW / 2
+  const anchorY = isNorth ? startY + startH / 2 : startY - startH / 2
 
-      // 3. Nouvelle taille (inversion du delta si on tire vers le haut ou la gauche)
-      const newWidth = Math.max(50, startW + (isWest ? -dx : dx))
-      const newHeight = Math.max(50, startH + (isNorth ? -dy : dy))
+  const onPointerMove = (moveEv: PointerEvent) => {
+    const dx = (moveEv.clientX - startMouseX) / zoom
+    const dy = (moveEv.clientY - startMouseY) / zoom
 
-      // 4. Nouveau centre déduit de l'ancre fixe
-      const newX = isWest ? anchorX - newWidth / 2 : anchorX + newWidth / 2
-      const newY = isNorth ? anchorY - newHeight / 2 : anchorY + newHeight / 2
-
-      updateCardPositionAndSize(card.id, newX, newY, newWidth, newHeight)
-    } // <-- Referme bien onPointerMove ici
-
-    const onPointerUp = () => {
-      window.removeEventListener("pointermove", onPointerMove)
-      window.removeEventListener("pointerup", onPointerUp)
+    // 1. Largeur et position X (inchangées si on tire 'n' ou 's')
+    let newWidth = startW
+    let newX = startX
+    if (hasX) {
+      newWidth = Math.max(50, startW + (isWest ? -dx : dx))
+      newX = isWest ? anchorX - newWidth / 2 : anchorX + newWidth / 2
     }
 
-    // Déclenchés immédiatement au clic sur la pastille :
-    window.addEventListener("pointermove", onPointerMove)
-    window.addEventListener("pointerup", onPointerUp)
+    // 2. Hauteur et position Y (inchangées si on tire 'e' ou 'w')
+    let newHeight = startH
+    let newY = startY
+    if (hasY) {
+      newHeight = Math.max(50, startH + (isNorth ? -dy : dy))
+      newY = isNorth ? anchorY - newHeight / 2 : anchorY + newHeight / 2
+    }
+
+    updateCardPositionAndSize(card.id, newX, newY, newWidth, newHeight)
   }
 
+  const onPointerUp = () => {
+    window.removeEventListener("pointermove", onPointerMove)
+    window.removeEventListener("pointerup", onPointerUp)
+  }
+
+  window.addEventListener("pointermove", onPointerMove)
+  window.addEventListener("pointerup", onPointerUp)
+}
+
+function selectCard(id: number){
+  if (mode === "select"){
+    setSelected(id)
+  }
+}
 
 
 
@@ -79,7 +102,7 @@ const onPointerMove = (moveEv: PointerEvent) => {
     <div
       onClick={(e) => {
         e.stopPropagation()
-        setSelected(card.id)
+        selectCard(card.id)
       }}
       onDoubleClick={(e) => {
         e.stopPropagation()
@@ -96,11 +119,19 @@ const onPointerMove = (moveEv: PointerEvent) => {
       className="absolute -translate-x-1/2 -translate-y-1/2 bg-secondary rounded-lg cursor-grab active:cursor-grabbing"
     >
       <div
+        tabIndex={0}
+        onKeyDown={(e) => {
+              if (e.key === "Delete" && isSelected && !isEditing) {
+                e.preventDefault()
+                removeCard(card.id) // Supprime la carte
+              }
+            }}
         className={`h-full w-full flex items-center justify-center p-2 ${
           isSelected
             ? "border-4 border-primary rounded-lg"
             : "border-3 border-neutral rounded-lg"
         }`}
+
       >
         {isSelected && isEditing ? (
           <textarea
@@ -126,28 +157,96 @@ const onPointerMove = (moveEv: PointerEvent) => {
         )}
         {isSelected && (
         <>
-          {/* Haut-gauche */}
+          {/* Milieu Haut */}
           <div
-          onPointerDown={(e) => handleResize("nw", e)}
-          className="absolute -top-1 -left-1 w-3 h-3 bg-base-100 border-2 border-primary rounded-full cursor-nwse-resize" />
+            onPointerDown={(e) => handleResize("n", e)}
+            className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-base-100 border-2 border-primary rounded-full cursor-ns-resize"
+          />
 
-          {/* Haut-droite */}
+          {/* Milieu Bas */}
           <div
-          onPointerDown={(e) => handleResize("ne", e)}
-          className="absolute -top-1 -right-1 w-3 h-3 bg-base-100 border-2 border-primary rounded-full cursor-nesw-resize" />
+            onPointerDown={(e) => handleResize("s", e)}
+            className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 bg-base-100 border-2 border-primary rounded-full cursor-ns-resize"
+          />
 
-          {/* Bas-gauche */}
+          {/* Milieu Gauche */}
           <div
-          onPointerDown={(e) => handleResize("sw", e)}
-          className="absolute -bottom-1 -left-1 w-3 h-3 bg-base-100 border-2 border-primary rounded-full cursor-nesw-resize" />
+            onPointerDown={(e) => handleResize("w", e)}
+            className="absolute top-1/2 -translate-y-1/2 -left-1 w-3 h-3 bg-base-100 border-2 border-primary rounded-full cursor-ew-resize"
+          />
 
-          {/* Bas-droite */}
+          {/* Milieu Droite */}
           <div
-          onPointerDown={(e) => handleResize("se", e)}
-          className="absolute -bottom-1 -right-1 w-3 h-3 bg-base-100 border-2 border-primary rounded-full cursor-nwse-resize" />
+            onPointerDown={(e) => handleResize("e", e)}
+            className="absolute top-1/2 -translate-y-1/2 -right-1 w-3 h-3 bg-base-100 border-2 border-primary rounded-full cursor-ew-resize"
+          />
+
+          {/* Haut-Gauche */}
+          <div
+            onPointerDown={(e) => handleResize("nw", e)}
+            className="absolute -top-1 -left-1 w-3 h-3 bg-base-100 border-2 border-primary rounded-full cursor-nwse-resize"
+          />
+
+          {/* Haut-Droite */}
+          <div
+            onPointerDown={(e) => handleResize("ne", e)}
+            className="absolute -top-1 -right-1 w-3 h-3 bg-base-100 border-2 border-primary rounded-full cursor-nesw-resize"
+          />
+
+          {/* Bas-Gauche */}
+          <div
+            onPointerDown={(e) => handleResize("sw", e)}
+            className="absolute -bottom-1 -left-1 w-3 h-3 bg-base-100 border-2 border-primary rounded-full cursor-nesw-resize"
+          />
+
+          {/* Bas-Droite */}
+          <div
+            onPointerDown={(e) => handleResize("se", e)}
+            className="absolute -bottom-1 -right-1 w-3 h-3 bg-base-100 border-2 border-primary rounded-full cursor-nwse-resize"
+          />
         </>
       )}
       </div>
+      {/* Pastilles de connexion (visibles uniquement en mode "connect") */}
+      {mode === "connect" && (
+        <>
+          {/* Haut (Nord) */}
+          <div
+            data-side="n"
+            data-cardid={card.id}
+            data-isanchor="true" 
+            onPointerDown={(e) => onStartConnect(card.id, "n", e)}
+            className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-accent border-2 border-base-100 rounded-full cursor-crosshair z-30 hover:scale-125 transition-transform"
+          />
+
+          {/* Bas (Sud) */}
+          <div
+            data-side="s"
+            data-cardid={card.id}
+            data-isanchor="true" 
+            onPointerDown={(e) => onStartConnect(card.id, "s", e)}
+            className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-accent border-2 border-base-100 rounded-full cursor-crosshair z-30 hover:scale-125 transition-transform"
+          />
+
+          {/* Gauche (Ouest) */}
+          <div
+            data-side="w"
+            data-cardid={card.id}
+            data-isanchor="true" 
+            onPointerDown={(e) => onStartConnect(card.id, "w", e)}
+            className="absolute top-1/2 -translate-y-1/2 -left-2 w-4 h-4 bg-accent border-2 border-base-100 rounded-full cursor-crosshair z-30 hover:scale-125 transition-transform"
+          />
+
+          {/* Droite (Est) */}
+          <div
+            data-side="e"
+            data-cardid={card.id}
+            data-isanchor="true" 
+            onPointerDown={(e) => onStartConnect(card.id, "e", e)}
+            className="absolute top-1/2 -translate-y-1/2 -right-2 w-4 h-4 bg-accent border-2 border-base-100 rounded-full cursor-crosshair z-30 hover:scale-125 transition-transform"
+          />
+        </>
+      )}
     </div>
   )
 }

@@ -1,117 +1,100 @@
-import type { Card } from "./types";
-
-
+import type { Card, Mode } from "./types"
 
 type Props = {
-  cards: Card[]
-  setCards: (cards: Card[]) => void
-  onRetourMenu: () => void;
+    cards: Card[]
+    setCards: (cards: Card[])=> void
+    addCard: ()=>void
+    mode: Mode
+    setMode: (mode: Mode) => void
+    setSelected: (id: number | null) => void
 }
 
-const ToolBar = ({ cards, setCards, onRetourMenu }: Props) => {
+const ToolBar = ({cards, setCards, addCard, mode, setMode, setSelected} : Props) => {
 
-  const test0: Card = {
-    id: 0,
-    text: "mid",
-    x: 0,
-    y: 0,
-    width: 100,
-    height: 100,
-    index: 10,
-  }
-  const test1: Card = {
-    id: 1,
-    text: "100 100",
-    x: 100,
-    y: 100,
-    width: 60,
-    height: 60,
-    index: 10,
-  }
-  const test2: Card = {
-    id: 2,
-    text: "-100 -100",
-    x: -100,
-    y: -100,
-    width: 200,
-    height: 200,
-    index: 10,
+  function changeMode(){
+    if (mode === "connect"){
+      setMode("select")
+    } else {
+      setMode("connect")
+      setSelected(null)
+    }
   }
 
-
-  function setTest() {
-    console.log(cards)
-    setCards([test0, test1, test2])
-  }
-
-
+  
+    
   return (
 
-    <div className="list absolute top-0 left-0 w-60 h-screen z-20 overflow-hidden bg-primary p-4">
+    <div className="flex-col absolute top-0 left-0 w-60 h-screen z-20 overflow-hidden bg-primary p-4">
+        
+        <button className="btn btn-secondary rounded-lg" onClick={addCard}>Add Card</button>
 
-      {/* Bouton ajouté pour pouvoir quitter le canevas et revenir au menu */}
-      <button
-        onClick={onRetourMenu}
-        className="bg-white border border-gray-300 px-4 py-2 rounded-md shadow-sm hover:bg-gray-50 font-medium"
-      >
-        ← Retour aux projets
-      </button>
-      <button className="btn btn-secondary rounded-lg" onClick={setTest}>Default</button>
-      <div className="dropdown mb-72 ">
-        <div tabIndex={0} role="button" className="btn m-1 rounded-lg">
-          Theme
-          <svg
-            width="12px"
-            height="12px"
-            className="inline-block h-2 w-2 fill-current opacity-60"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 2048 2048">
-            <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
-          </svg>
+        <button
+          className={`btn rounded-lg ${
+            mode === "connect" ? "btn-accent" : "btn-outline btn-secondary"
+          }`}
+          onClick={() => changeMode()}
+        >
+          {mode === "connect" ? "Mode : Lier (actif)" : "Relier des cartes"}
+        </button>
+
+        <div className="dropdown mb-72 ">
+          <div tabIndex={0} role="button" className="btn m-1 rounded-lg">
+            Theme
+            <svg
+              width="12px"
+              height="12px"
+              className="inline-block h-2 w-2 fill-current opacity-60"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 2048 2048">
+              <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+            </svg>
+          </div>
+          <ul tabIndex={-1} className="rounded-lg dropdown-content bg-base-300 rounded-box z-1 w-52 p-2 shadow-2xl">
+            <li>
+              <input
+                type="radio"
+                name="theme-dropdown"
+                className="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                aria-label="Default"
+                value="default" />
+            </li>
+            <li>
+              <input
+                type="radio"
+                name="theme-dropdown"
+                className="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                aria-label="Retro"
+                value="retro" />
+            </li>
+            <li>
+              <input
+                type="radio"
+                name="theme-dropdown"
+                className="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                aria-label="Cyberpunk"
+                value="cyberpunk" />
+            </li>
+            <li>
+              <input
+                type="radio"
+                name="theme-dropdown"
+                className="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                aria-label="Valentine"
+                value="valentine" />
+            </li>
+            <li>
+              <input
+                type="radio"
+                name="theme-dropdown"
+                className="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                aria-label="Aqua"
+                value="aqua" />
+            </li>
+          </ul>
         </div>
-        <ul tabIndex={-1} className="rounded-lg dropdown-content bg-base-300 rounded-box z-1 w-52 p-2 shadow-2xl">
-          <li>
-            <input
-              type="radio"
-              name="theme-dropdown"
-              className="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
-              aria-label="Default"
-              value="default" />
-          </li>
-          <li>
-            <input
-              type="radio"
-              name="theme-dropdown"
-              className="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
-              aria-label="Retro"
-              value="retro" />
-          </li>
-          <li>
-            <input
-              type="radio"
-              name="theme-dropdown"
-              className="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
-              aria-label="Cyberpunk"
-              value="cyberpunk" />
-          </li>
-          <li>
-            <input
-              type="radio"
-              name="theme-dropdown"
-              className="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
-              aria-label="Valentine"
-              value="valentine" />
-          </li>
-          <li>
-            <input
-              type="radio"
-              name="theme-dropdown"
-              className="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
-              aria-label="Aqua"
-              value="aqua" />
-          </li>
-        </ul>
-      </div>
+        <div className=" ">
+          To zoom or unZoom hold "crtl"
+        </div>
     </div>
   )
 }
