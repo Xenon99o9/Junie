@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import type React from "react"
-import type { Card , Mode } from "./types"
+import type { Card , Mode, Side } from "./types"
 
 type Props = {
   card: Card
@@ -12,6 +12,7 @@ type Props = {
   updateCardPositionAndSize: (id:number, x:number, y:number, width:number,height:number) => void
   removeCard: (id:number)=> void
   mode: Mode
+  onStartConnect: (cardId: number, side: Side, e: React.PointerEvent) => void
 }
 
 const CardItem = ({
@@ -24,6 +25,7 @@ const CardItem = ({
   updateCardPositionAndSize,
   removeCard,
   mode,
+  onStartConnect,
 }: Props) => {
   const [isEditing, setIsEditing] = useState(false)
   const isSelected = selected === card.id
@@ -211,24 +213,36 @@ function selectCard(id: number){
           {/* Haut (Nord) */}
           <div
             data-side="n"
+            data-cardid={card.id}
+            data-isanchor="true" 
+            onPointerDown={(e) => onStartConnect(card.id, "n", e)}
             className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-accent border-2 border-base-100 rounded-full cursor-crosshair z-30 hover:scale-125 transition-transform"
           />
 
           {/* Bas (Sud) */}
           <div
             data-side="s"
+            data-cardid={card.id}
+            data-isanchor="true" 
+            onPointerDown={(e) => onStartConnect(card.id, "s", e)}
             className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-accent border-2 border-base-100 rounded-full cursor-crosshair z-30 hover:scale-125 transition-transform"
           />
 
           {/* Gauche (Ouest) */}
           <div
             data-side="w"
+            data-cardid={card.id}
+            data-isanchor="true" 
+            onPointerDown={(e) => onStartConnect(card.id, "w", e)}
             className="absolute top-1/2 -translate-y-1/2 -left-2 w-4 h-4 bg-accent border-2 border-base-100 rounded-full cursor-crosshair z-30 hover:scale-125 transition-transform"
           />
 
           {/* Droite (Est) */}
           <div
             data-side="e"
+            data-cardid={card.id}
+            data-isanchor="true" 
+            onPointerDown={(e) => onStartConnect(card.id, "e", e)}
             className="absolute top-1/2 -translate-y-1/2 -right-2 w-4 h-4 bg-accent border-2 border-base-100 rounded-full cursor-crosshair z-30 hover:scale-125 transition-transform"
           />
         </>

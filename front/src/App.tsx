@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Map from "./Map";
 import ToolBar from "./ToolBar";
-import type { Card, Wire, Mode } from "./types"
+import type { Card, Wire, Mode, Side } from "./types"
 
 function App() {
 
@@ -18,6 +18,7 @@ function App() {
   const [mode, setMode] = useState<Mode>("select")
   
   const [selected, setSelected] = useState<number | null>(null)
+  const [selectedWire, setSelectedWire] = useState<number | null>(null)
 
   const updateCardPosition = (id: number, x: number, y: number) => {
     setCards((prevCards) =>
@@ -60,6 +61,31 @@ function App() {
     setWires((prevWires) =>
       prevWires.filter((wire) => wire.fromId !== id && wire.toId !== id)
     )
+    setSelectedWire(null)
+  }
+
+  const addWire = (fromId: number, fromSide: Side, toId: number, toSide: Side) => {
+    const newWire: Wire = {
+      id: Date.now(),
+      fromId,
+      fromSide,
+      toId,
+      toSide,
+    }
+    setWires((prevWires) => {
+      const duplicate = prevWires.some((wire) =>
+        (wire.fromId === fromId &&
+          wire.fromSide === fromSide &&
+          wire.toId === toId &&
+          wire.toSide === toSide) ||
+        (wire.fromId === toId &&
+          wire.fromSide === toSide &&
+          wire.toId === fromId &&
+          wire.toSide === fromSide)
+      )
+
+      return duplicate ? prevWires : [...prevWires, newWire]
+    })
   }
 
 
@@ -70,6 +96,24 @@ function App() {
   useEffect(() => {
     localStorage.setItem("wires", JSON.stringify(wires))
   }, [wires])
+
+  useEffect(() => {
+    if (selectedWire === null) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Delete" && event.key !== "Backspace") return
+
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      setWires((prevWires) =>
+        prevWires.filter((wire) => wire.id !== selectedWire)
+      )
+      setSelectedWire(null)
+    }
+
+    window.addEventListener("keydown", handleKeyDown, true)
+    return () => window.removeEventListener("keydown", handleKeyDown, true)
+  }, [selectedWire])
 
   return (
     <div className="relative w-screen h-screen overflow-hidden">
@@ -87,6 +131,10 @@ function App() {
         updateCardPositionAndSize={updateCardPositionAndSize}
         removeCard={removeCard}
         mode={mode}
+        wires={wires}
+        addWire={addWire}
+        selectedWire={selectedWire}
+        setSelectedWire={setSelectedWire}
       />
       <ToolBar
         cards={cards}
