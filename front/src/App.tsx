@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import Map from "./Map";
 import ToolBar from "./ToolBar";
-import DashboardLayout from "./DashboardLayout"; // Import du nouveau layout
+import DashboardLayout from "./DashboardLayout";
 import type { Card, Wire, Mode, Side } from "./types"
+import AuthPage from "./AuthPage";
 
 function App() {
-  // 1. Nouvel état pour savoir si on affiche le menu ou le canevas 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [modeMenu, setModeMenu] = useState<'menu' | 'canevas'>('menu');
 
   // LOGIQUE 
@@ -43,12 +44,13 @@ function App() {
       )
     )
   }
+
   const addCard = () => {
     const defaultCard : Card = {
-      id:Date.now(),
-      text:"Text",
-      x:0,
-      y:0,
+      id: Date.now(),
+      text: "Text",
+      x: 0,
+      y: 0,
       width: 100,
       height: 100,
       index: 10,
@@ -57,7 +59,7 @@ function App() {
     setCards(newCards)
   }
 
-  const removeCard = (id:number) => {
+  const removeCard = (id: number) => {
     const newCards = cards.filter((card) => card.id !== id)
     setCards(newCards)
     setWires((prevWires) =>
@@ -116,7 +118,19 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown, true)
   }, [selectedWire])
 
+
   // 2. RENDU
+
+  // Étape 1 : Si l'utilisateur n'est pas connecté, on affiche la page d'authentification
+  if (!isAuthenticated) {
+    return (
+      <AuthPage 
+        onLoginSuccess={() => setIsAuthenticated(true)} 
+      />
+    );
+  }
+
+  // Étape 2 : S'il est connecté et veut voir le menu
   if (modeMenu === 'menu') {
     return (
       <DashboardLayout
@@ -125,11 +139,9 @@ function App() {
     )
   }
 
+  // Étape 3 : S'il est connecté et veut voir le canevas
   return (
     <div className="relative w-screen h-screen overflow-hidden">
-
-
-
       <Map
         cards={cards}
         selected={selected}
@@ -152,8 +164,6 @@ function App() {
         onRetourMenu={() => setModeMenu('menu')}
       />
     </div>
-
-    
   )
 }
 
