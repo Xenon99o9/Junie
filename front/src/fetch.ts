@@ -59,7 +59,9 @@ export async function apiFetchUpdate(resource: string, id: number, data: any) {
   })
 
   if (!response.ok) {
-    throw new Error(`Erreur lors de la mise à jour de ${resource} (ID: ${id})`)
+    const details = await response.text()
+    const message = `Erreur lors de la mise à jour de ${resource} (ID: ${id}, HTTP ${response.status})`
+    throw new Error(details ? `${message}: ${details}` : message)
   }
 
   return await response.json()

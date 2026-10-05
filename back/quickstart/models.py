@@ -19,10 +19,10 @@ class Card(models.Model):
     )
     
     text = models.TextField(null=True)
-    x = models.IntegerField()
-    y = models.IntegerField()
-    width = models.IntegerField()
-    height = models.IntegerField()
+    x = models.FloatField()
+    y = models.FloatField()
+    width = models.FloatField()
+    height = models.FloatField()
     index = models.IntegerField()
 
     def __str__(self):

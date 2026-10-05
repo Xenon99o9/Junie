@@ -9,7 +9,9 @@ type Props = {
   setSelected: (id: number | null) => void
   onPointerDown: (id: number, e: React.PointerEvent) => void
   updateCardText: (id: number, text: string) => void
+  saveCardText: (id: number, text: string) => void
   updateCardPositionAndSize: (id:number, x:number, y:number, width:number,height:number) => void
+  saveCardPositionAndSize: (id:number, x:number, y:number, width:number,height:number) => void
   removeCard: (id:number)=> void
   mode: Mode
   onStartConnect: (cardId: number, side: Side, e: React.PointerEvent) => void
@@ -22,7 +24,9 @@ const CardItem = ({
   setSelected,
   onPointerDown,
   updateCardText,
+  saveCardText,
   updateCardPositionAndSize,
+  saveCardPositionAndSize,
   removeCard,
   mode,
   onStartConnect,
@@ -57,6 +61,11 @@ const handleResize = (dir: Direction, e: React.PointerEvent) => {
   // Ancrages opposés uniquement si l'axe est actif
   const anchorX = isWest ? startX + startW / 2 : startX - startW / 2
   const anchorY = isNorth ? startY + startH / 2 : startY - startH / 2
+  let finalX = startX
+  let finalY = startY
+  let finalWidth = startW
+  let finalHeight = startH
+  let resized = false
 
   const onPointerMove = (moveEv: PointerEvent) => {
     const dx = (moveEv.clientX - startMouseX) / zoom
@@ -78,12 +87,18 @@ const handleResize = (dir: Direction, e: React.PointerEvent) => {
       newY = isNorth ? anchorY - newHeight / 2 : anchorY + newHeight / 2
     }
 
+    finalX = newX
+    finalY = newY
+    finalWidth = newWidth
+    finalHeight = newHeight
+    resized = true
     updateCardPositionAndSize(card.id, newX, newY, newWidth, newHeight)
   }
 
   const onPointerUp = () => {
     window.removeEventListener("pointermove", onPointerMove)
     window.removeEventListener("pointerup", onPointerUp)
+    if (resized) saveCardPositionAndSize(card.id, finalX, finalY, finalWidth, finalHeight)
   }
 
   window.addEventListener("pointermove", onPointerMove)
@@ -144,7 +159,12 @@ function selectCard(id: number){
                 setIsEditing(false) // Quitte l'édition sans toucher à la sélection
               }
             }}
-            onBlur={() => setIsEditing(false)}
+            onBlur={(e) => {
+              if (e.currentTarget.value !== card.text) {
+                saveCardText(card.id, e.currentTarget.value)
+              }
+              setIsEditing(false)
+            }}
             className="w-full h-full bg-transparent text-secondary-content text-center outline-none resize-none overflow-hidden cursor-text"
             autoFocus
           />
