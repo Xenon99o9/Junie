@@ -4,7 +4,7 @@ from django.db import models
 
 class Project(models.Model):
     title = models.TextField()
-    description = models.TextField()
+    description = models.TextField(null=True)
     public = models.BooleanField(default=False)
 
     def __str__(self):
@@ -18,7 +18,7 @@ class Card(models.Model):
         related_name='cards'
     )
     
-    text = models.TextField()
+    text = models.TextField(null=True)
     x = models.IntegerField()
     y = models.IntegerField()
     width = models.IntegerField()
@@ -42,3 +42,8 @@ class Wire(models.Model):
         related_name='wires'
     )
     
+    fromId = models.IntegerField(null=True)
+    toId = models.IntegerField(null=True)
+    
+    fromSide = models.CharField(max_length=1, choices=Side.choices, default=Side.NORTH)
+    toSide = models.CharField(max_length=1, choices=Side.choices, default=Side.NORTH)
