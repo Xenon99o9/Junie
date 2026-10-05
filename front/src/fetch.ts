@@ -50,7 +50,7 @@ export async function apiFetchPost(endpoint: string, data: any) {
 // Mettre à jour une donnée précise (ex: apiFetchUpdate("cards", 5, {...}))
 export async function apiFetchUpdate(resource: string, id: number, data: any) {
   // Construit automatiquement l'URL: http://localhost:8000/api/cards/5/
-  const response = await fetch(`${API_BASE_URL}/${resource}/${id}/`, {
+  const response = await fetch(`${API_BASE_URL}${resource}/${id}/`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
@@ -76,7 +76,7 @@ export async function apiFetchUpdate(resource: string, id: number, data: any) {
 
 // Supprimer une donnée précise (ex: apiFetchDelete("wires", 12))
 export async function apiFetchDelete(resource: string, id: number) {
-  const response = await fetch(`${API_BASE_URL}/${resource}/${id}/`, {
+  const response = await fetch(`${API_BASE_URL}${resource}/${id}/`, {
     method: "DELETE",
   })
 

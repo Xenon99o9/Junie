@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import Map from "./Map";
 import ToolBar from "./ToolBar";
-import DashboardLayout from "./DashboardLayout"; // Import du nouveau layout
-import type { Card, Wire, Mode, Side } from "./types"
+import DashboardLayout from "./DashboardLayout";
+import type { Card, Wire, Mode, Side } from "./types";
+import { apiFetchGet, apiFetchPost, apiFetchDelete } from "./fetch";
 
 function App() {
   // 1. Nouvel état pour savoir si on affiche le menu ou le canevas 
@@ -13,14 +14,44 @@ function App() {
   const initialCards = savedCards ? JSON.parse(savedCards) : []
   const [cards, setCards] = useState<Card[]>(initialCards)
 
-  const savedWires = localStorage.getItem("wires")
-  const initialWires = savedWires ? JSON.parse(savedWires) : []
-  const [wires, setWires] = useState<Wire[]>(initialWires)
+  const [wires, setWires] = useState<Wire[]>([])
 
   const [mode, setMode] = useState<Mode>("select")
   
   const [selected, setSelected] = useState<number | null>(null)
   const [selectedWire, setSelectedWire] = useState<number | null>(null)
+  const [wireError, setWireError] = useState<string | null>(null)
+
+  useEffect(() => {
+    let active = true
+
+    apiFetchGet("wires/")
+      .then((response: { results: Wire[] }) => {
+        if (active) {
+          setWires(response.results.filter((wire) => wire.project === 1))
+        }
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          setWireError(error instanceof Error ? error.message : "Erreur lors du chargement des wires")
+        }
+      })
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const removeWire = async (id: number) => {
+    try {
+      await apiFetchDelete("wires", id)
+      setWires((prevWires) => prevWires.filter((wire) => wire.id !== id))
+      setSelectedWire((selectedId) => selectedId === id ? null : selectedId)
+      setWireError(null)
+    } catch (error) {
+      setWireError(error instanceof Error ? error.message : "Erreur lors de la suppression du wire")
+    }
+  }
 
   const updateCardPosition = (id: number, x: number, y: number) => {
     setCards((prevCards) =>
@@ -46,6 +77,7 @@ function App() {
   const addCard = () => {
     const defaultCard : Card = {
       id:Date.now(),
+      project: 1,
       text:"Text",
       x:0,
       y:0,
@@ -60,43 +92,43 @@ function App() {
   const removeCard = (id:number) => {
     const newCards = cards.filter((card) => card.id !== id)
     setCards(newCards)
-    setWires((prevWires) =>
-      prevWires.filter((wire) => wire.fromId !== id && wire.toId !== id)
-    )
     setSelectedWire(null)
+    wires
+      .filter((wire) => wire.fromId === id || wire.toId === id)
+      .forEach((wire) => void removeWire(wire.id))
   }
 
-  const addWire = (fromId: number, fromSide: Side, toId: number, toSide: Side) => {
-    const newWire: Wire = {
-      id: Date.now(),
-      fromId,
-      fromSide,
-      toId,
-      toSide,
-    }
-    setWires((prevWires) => {
-      const duplicate = prevWires.some((wire) =>
-        (wire.fromId === fromId &&
-          wire.fromSide === fromSide &&
-          wire.toId === toId &&
-          wire.toSide === toSide) ||
-        (wire.fromId === toId &&
-          wire.fromSide === toSide &&
-          wire.toId === fromId &&
-          wire.toSide === fromSide)
-      )
+  const addWire = async (fromId: number, fromSide: Side, toId: number, toSide: Side) => {
+    const duplicate = wires.some((wire) =>
+      (wire.fromId === fromId &&
+        wire.fromSide === fromSide &&
+        wire.toId === toId &&
+        wire.toSide === toSide) ||
+      (wire.fromId === toId &&
+        wire.fromSide === toSide &&
+        wire.toId === fromId &&
+        wire.toSide === fromSide)
+    )
+    if (duplicate) return
 
-      return duplicate ? prevWires : [...prevWires, newWire]
-    })
+    try {
+      const savedWire: Wire = await apiFetchPost("wires/", {
+        project: 1,
+        fromId,
+        fromSide,
+        toId,
+        toSide,
+      })
+      setWires((prevWires) => [...prevWires, savedWire])
+      setWireError(null)
+    } catch (error) {
+      setWireError(error instanceof Error ? error.message : "Erreur lors de l'enregistrement du wire")
+    }
   }
 
   useEffect(() => {
     localStorage.setItem("cards", JSON.stringify(cards))
   }, [cards])
-
-  useEffect(() => {
-    localStorage.setItem("wires", JSON.stringify(wires))
-  }, [wires])
 
   useEffect(() => {
     if (selectedWire === null) return
@@ -106,10 +138,7 @@ function App() {
 
       event.preventDefault()
       event.stopImmediatePropagation()
-      setWires((prevWires) =>
-        prevWires.filter((wire) => wire.id !== selectedWire)
-      )
-      setSelectedWire(null)
+      void removeWire(selectedWire)
     }
 
     window.addEventListener("keydown", handleKeyDown, true)
@@ -144,6 +173,11 @@ function App() {
         selectedWire={selectedWire}
         setSelectedWire={setSelectedWire}
       />
+      {wireError && (
+        <div role="alert" className="absolute left-4 top-4 z-50 rounded bg-red-100 px-4 py-2 text-red-800">
+          {wireError}
+        </div>
+      )}
       <ToolBar
         addCard={addCard}
         mode={mode}
