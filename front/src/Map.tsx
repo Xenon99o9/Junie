@@ -7,8 +7,11 @@ type Props = {
     selected: number | null
     setSelected: (id: number | null) => void
     updateCardPosition: (id:number,x:number,y:number)=>void
+    saveCardPosition: (id:number,x:number,y:number)=>void
     updateCardText: (id:number, text:string)=>void
+    saveCardText: (id:number, text:string)=>void
     updateCardPositionAndSize: (id:number, x:number, y:number, width:number,height:number) => void
+    saveCardPositionAndSize: (id:number, x:number, y:number, width:number,height:number) => void
     removeCard: (id:number) => void
     mode: Mode
     wires: Wire[]
@@ -41,7 +44,7 @@ type DraftWire = {
 
 
 
-const Map = ({ cards, selected, setSelected, updateCardPosition, updateCardText, updateCardPositionAndSize, removeCard, mode, wires, addWire, selectedWire, setSelectedWire }: Props) => {
+const Map = ({ cards, selected, setSelected, updateCardPosition, saveCardPosition, updateCardText, saveCardText, updateCardPositionAndSize, saveCardPositionAndSize, removeCard, mode, wires, addWire, selectedWire, setSelectedWire }: Props) => {
 
   
   const handlePointerDown = (cardId: number, e: React.PointerEvent) => {
@@ -67,6 +70,9 @@ const Map = ({ cards, selected, setSelected, updateCardPosition, updateCardText,
       const startSourisY = e.clientY
       const startObjetX = currentCard.x
       const startObjetY = currentCard.y
+      let finalX = startObjetX
+      let finalY = startObjetY
+      let moved = false
 
       // B. Fonction appelée à chaque micro-déplacement
       const handlePointerMove = (moveEvent: PointerEvent) => {
@@ -75,7 +81,10 @@ const Map = ({ cards, selected, setSelected, updateCardPosition, updateCardText,
         const deltaY = (moveEvent.clientY - startSourisY) / zoom
 
         // Nouvelle position = point de départ de l'objet + décalage
-        updateCardPosition(cardId, startObjetX + deltaX, startObjetY + deltaY)
+        finalX = startObjetX + deltaX
+        finalY = startObjetY + deltaY
+        moved = true
+        updateCardPosition(cardId, finalX, finalY)
       }
 
       // C. Fonction appelée au relâchement
@@ -83,6 +92,7 @@ const Map = ({ cards, selected, setSelected, updateCardPosition, updateCardText,
         // Nettoyage impératif : on arrête d'écouter la fenêtre
         window.removeEventListener("pointermove", handlePointerMove)
         window.removeEventListener("pointerup", handlePointerUp)
+        if (moved) saveCardPosition(cardId, finalX, finalY)
       }
 
       // D. Branchement temporaire sur la fenêtre
@@ -339,7 +349,9 @@ const Map = ({ cards, selected, setSelected, updateCardPosition, updateCardText,
             setSelected={setSelected}
             onPointerDown={handlePointerDown}
             updateCardText={updateCardText}
+            saveCardText={saveCardText}
             updateCardPositionAndSize={updateCardPositionAndSize}
+            saveCardPositionAndSize={saveCardPositionAndSize}
             removeCard={removeCard}
             mode={mode}
             onStartConnect={handleStartConnect}
