@@ -26,4 +26,4 @@ class CardSerializer(serializers.ModelSerializer):
 class WireSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wire
-        fields = ['id', 'project']
+        fields = ['id', 'project', 'fromId', 'fromSide', 'toId', 'toSide']
