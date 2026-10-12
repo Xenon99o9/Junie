@@ -4,9 +4,10 @@ import ToolBar from "./ToolBar";
 import DashboardLayout from "./DashboardLayout";
 import type { Card, Wire, Mode, Side } from "./types";
 import { apiFetchGet, apiFetchPost, apiFetchDelete, apiFetchUpdate } from "./fetch";
+import AuthPage from "./AuthPage";
 
 function App() {
-  // 1. Nouvel état pour savoir si on affiche le menu ou le canevas 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [modeMenu, setModeMenu] = useState<'menu' | 'canevas'>('menu');
 
   // LOGIQUE 
@@ -179,6 +180,16 @@ function App() {
     }
   }
 
+  const handleLogout = () => {
+    // 1. On supprime les tokens du navigateur
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    // 2. On repasse l'état d'authentification à false
+    setIsAuthenticated(false);
+    // 3. On remet la vue par défaut sur le menu pour la prochaine connexion
+    setModeMenu('menu');
+  };
+
   useEffect(() => {
     if (selectedWire === null) return
 
@@ -194,20 +205,31 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown, true)
   }, [selectedWire])
 
+
   // 2. RENDU
+
+  // Étape 1 : Si l'utilisateur n'est pas connecté, on affiche la page d'authentification
+  if (!isAuthenticated) {
+    return (
+      <AuthPage 
+        onLoginSuccess={() => setIsAuthenticated(true)} 
+      />
+    );
+  }
+
+  // Étape 2 : S'il est connecté et veut voir le menu
   if (modeMenu === 'menu') {
     return (
       <DashboardLayout
         onOuvrirCanevas={() => setModeMenu('canevas')}
+        onLogout={handleLogout}
       />
     )
   }
 
+  // Étape 3 : S'il est connecté et veut voir le canevas
   return (
     <div className="relative w-screen h-screen overflow-hidden">
-
-
-
       <Map
         cards={cards}
         selected={selected}
@@ -243,8 +265,6 @@ function App() {
         onRetourMenu={() => setModeMenu('menu')}
       />
     </div>
-
-    
   )
 }
 
