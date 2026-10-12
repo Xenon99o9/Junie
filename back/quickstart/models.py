@@ -1,8 +1,16 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 # Create your models here.
 
 class Project(models.Model):
+
+    owner = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='projects',
+        null=True 
+    )
+
     title = models.TextField()
     description = models.TextField(null=True)
     public = models.BooleanField(default=False)

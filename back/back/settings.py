@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'quickstart',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -133,10 +134,26 @@ MAILERS = {
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
 
 # Autoriser ton frontend local (Vite utilise souvent le port 5173, sinon mets 3000)
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+]
+
+# Idéalement, en production, on ne met jamais ça dans le code source mais dans une variable d'environnement (.env)
+CUSTOM_PASSWORD_PEPPER = "UnPoivreTresSecret123!"
+
+# On dit à Django d'utiliser votre classe en premier. 
+# Le reste (les hashers natifs) sert de "fallback" (plan de secours).
+PASSWORD_HASHERS = [
+    'quickstart.hashers.CustomSHA256Hasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
 ]
