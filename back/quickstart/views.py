@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Group, User
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, generics
+from .serializers import RegisterSerializer
 
 from quickstart.serializers import GroupSerializer, UserSerializer
 
@@ -39,3 +40,7 @@ class CardViewSet(viewsets.ModelViewSet):
 class WireViewSet(viewsets.ModelViewSet):
     queryset = Wire.objects.all() 
     serializer_class = WireSerializer 
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
